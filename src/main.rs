@@ -1,6 +1,8 @@
 use app::app::App;
 
 mod app;
+mod game;
+mod ray;
 mod timekeeper;
 mod window;
 extern crate sdl2;
@@ -12,5 +14,6 @@ pub fn main() -> Result<(), String> {
         app.update();
         app.render();
     }
+    assert!(1 == 2);
     Ok(())
 }
