@@ -2,6 +2,7 @@ use app::app::App;
 
 mod app;
 mod game;
+mod player;
 mod ray;
 mod timekeeper;
 mod window;

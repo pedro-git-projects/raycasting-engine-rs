@@ -2,12 +2,14 @@ use sdl2::render::Canvas;
 
 use crate::{
     game::game::Game,
+    player::player::Player,
     timekeeper::timekeeper::TimeKeeper,
     window::window::{WINDOW_HEIGHT, WINDOW_WIDTH},
 };
 
 pub struct App {
     pub game: Game,
+    pub player: Player,
     pub sdl_context: sdl2::Sdl,
     pub video_subsystem: sdl2::VideoSubsystem,
     pub canvas: Canvas<sdl2::video::Window>,
@@ -35,9 +37,11 @@ impl App {
 
         let event_pump = sdl_context.event_pump()?;
         let game = Game::default();
+        let player = Player::default();
 
         Ok(App {
             game,
+            player,
             sdl_context,
             video_subsystem,
             canvas,
