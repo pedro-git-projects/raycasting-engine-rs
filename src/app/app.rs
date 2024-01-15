@@ -36,12 +36,10 @@ impl App {
             .map_err(|err| format!("Canvas build error: {:?}", err))?;
 
         let event_pump = sdl_context.event_pump()?;
-        let game = Game::default();
-        let player = Player::default();
 
         Ok(App {
-            game,
-            player,
+            game: Game::default(),
+            player: Player::default(),
             sdl_context,
             video_subsystem,
             canvas,
