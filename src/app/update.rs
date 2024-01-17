@@ -1,6 +1,6 @@
 use super::app::App;
 
-impl App {
+impl<'a> App<'a> {
     pub fn update(&mut self) {
         self.timekeeper.calculate_wait_time();
         if self.timekeeper.wait_time() > 0
