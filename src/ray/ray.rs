@@ -15,15 +15,15 @@ pub struct Ray {
 }
 
 impl Ray {
-    fn is_facing_down(angle: f64) -> bool {
+    pub fn is_facing_down(angle: f64) -> bool {
         angle > 0.0 && angle < PI
     }
 
-    fn is_facing_right(angle: f64) -> bool {
+    pub fn is_facing_right(angle: f64) -> bool {
         angle < 0.5 * PI || angle > 1.5 * PI
     }
 
-    fn normalize_angle(angle: f64) -> f64 {
+    pub fn normalize_angle(angle: f64) -> f64 {
         let mut angle = angle.rem_euclid(2.0 * PI);
         if angle < 0.0 {
             angle += 2.0 * PI

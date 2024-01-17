@@ -6,30 +6,30 @@ use crate::{
 };
 
 #[derive(Clone, Copy)]
-enum TurnDirection {
+pub enum TurnDirection {
     Neutral = 0,
     Left = -1,
     Right = 1,
 }
 
 #[derive(Clone, Copy)]
-enum WalkDirection {
+pub enum WalkDirection {
     Neutral = 0,
     Forward = 1,
     Backward = -1,
 }
 
 pub struct Player {
-    x: f64,
-    y: f64,
-    width: f64,
-    height: f64,
-    turn_direction: TurnDirection,
-    walk_direction: WalkDirection,
-    rotation_angle: f64,
-    walk_speed: f64,
-    turn_speed: f64,
-    minimap_scale: f64,
+    pub x: f64,
+    pub y: f64,
+    pub width: f64,
+    pub height: f64,
+    pub turn_direction: TurnDirection,
+    pub walk_direction: WalkDirection,
+    pub rotation_angle: f64,
+    pub walk_speed: f64,
+    pub turn_speed: f64,
+    pub minimap_scale: f64,
 }
 
 impl Default for Player {
@@ -50,26 +50,6 @@ impl Default for Player {
 }
 
 impl Player {
-    fn x(&self) -> f64 {
-        self.x
-    }
-
-    fn y(&self) -> f64 {
-        self.y
-    }
-
-    fn width(&self) -> f64 {
-        self.width
-    }
-
-    fn height(&self) -> f64 {
-        self.height
-    }
-
-    fn rotation_angle(&self) -> f64 {
-        self.rotation_angle
-    }
-
     fn set_x(&mut self, x: f64) {
         self.x = x;
     }
@@ -94,7 +74,7 @@ impl Player {
         self.y -= y;
     }
 
-    fn set_walk_direction(&mut self, direction: &str) -> Result<(), String> {
+    pub fn set_walk_direction(&mut self, direction: &str) -> Result<(), String> {
         match direction.to_lowercase().as_str() {
             "neutral" => self.walk_direction = WalkDirection::Neutral,
             "forward" => self.walk_direction = WalkDirection::Forward,
@@ -104,7 +84,7 @@ impl Player {
         Ok(())
     }
 
-    fn set_turn_direction(&mut self, direction: &str) -> Result<(), String> {
+    pub fn set_turn_direction(&mut self, direction: &str) -> Result<(), String> {
         match direction.to_lowercase().as_str() {
             "neutral" => self.turn_direction = TurnDirection::Neutral,
             "left" => self.turn_direction = TurnDirection::Left,
@@ -114,7 +94,7 @@ impl Player {
         Ok(())
     }
 
-    fn move_player(&mut self, delta: f64, game: &Game) {
+    pub fn move_player(&mut self, delta: f64, game: &Game) {
         self.rotation_angle += match self.turn_direction {
             TurnDirection::Neutral => 0.0,
             TurnDirection::Left => -self.turn_speed * delta,

@@ -1,5 +1,3 @@
-use std::rc::Rc;
-
 use sdl2::{
     pixels::Color,
     pixels::PixelFormatEnum,
@@ -10,9 +8,9 @@ use sdl2::{
 use crate::window::window::{WINDOW_HEIGHT, WINDOW_WIDTH};
 
 pub struct ColorBuffer<'a> {
-    color: Vec<u32>,
-    texture_creator: &'a TextureCreator<WindowContext>,
-    texture: Texture<'a>,
+    pub color: Vec<u32>,
+    pub texture_creator: &'a TextureCreator<WindowContext>,
+    pub texture: Texture<'a>,
 }
 
 impl<'a> ColorBuffer<'a> {

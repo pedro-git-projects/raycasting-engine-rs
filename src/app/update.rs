@@ -11,5 +11,6 @@ impl<'a> App<'a> {
 
         self.timekeeper.calculate_delta();
         unsafe { self.timekeeper.set_ticks(sdl2::sys::SDL_GetTicks64()) }
+        self.player.move_player(self.timekeeper.delta_time(), &self.game);
     }
 }
