@@ -6,6 +6,7 @@ mod game;
 mod player;
 mod ray;
 mod timekeeper;
+mod utils;
 mod window;
 extern crate sdl2;
 

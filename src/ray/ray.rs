@@ -51,6 +51,26 @@ impl Ray {
             content: i32::default(),
         }
     }
+
+    pub fn set_distance(&mut self, distance: f64) {
+        self.distance = distance;
+    }
+
+    pub fn set_x_collision(&mut self, x_collision: f64) {
+        self.x_collision = x_collision;
+    }
+
+    pub fn set_y_collision(&mut self, y_collision: f64) {
+        self.y_collision = y_collision;
+    }
+
+    pub fn set_content(&mut self, content: i32) {
+        self.content = content;
+    }
+
+    pub fn set_is_vertical_collision(&mut self, is_vertical_collision: bool) {
+        self.is_vertical_collision = is_vertical_collision;
+    }
 }
 
 #[test]

@@ -9,7 +9,9 @@ use crate::{
     colorbuffer::colorbuffer::ColorBuffer,
     game::game::Game,
     player::player::Player,
+    ray::ray::Ray,
     timekeeper::timekeeper::TimeKeeper,
+    utils::{numbers::wrapping_sub_float, points::distance_between_points},
     window::window::{
         DISTANCE_PROJ_PLANE, MINIMAP_SCALING, NUM_COLS, NUM_RAYS, NUM_ROWS, TILE_SIZE,
         WINDOW_HEIGHT, WINDOW_WIDTH,
@@ -55,11 +57,11 @@ impl<'a> App<'a> {
 
     pub fn generate3d_projection(&mut self) {
         for x in 0..NUM_RAYS {
-            let perp_dist = self.game.rays[x as usize].distance
-                * self.game.rays[x as usize].angle.cos()
-                - self.player.rotation_angle;
 
-            let perp_dist_wrapped = wrapping_sub_float(perp_dist, self.player.rotation_angle);
+            let perp_dist_wrapped = wrapping_sub_float(
+                self.game.rays[x as usize].distance * self.game.rays[x as usize].angle.cos(),
+                self.player.rotation_angle,
+            );
 
             let proj_wall_height = (TILE_SIZE as f64 / perp_dist_wrapped) * *DISTANCE_PROJ_PLANE;
             let wall_segment_height = proj_wall_height as i32;
@@ -117,7 +119,6 @@ impl<'a> App<'a> {
             .update(None, color_bytes, WINDOW_WIDTH as usize * 4)
             .unwrap();
 
-        // Assuming `app.renderer` has a `copy` method with appropriate arguments
         self.canvas
             .copy(&self.color_buffer.texture, None, None)
             .unwrap();
@@ -198,12 +199,60 @@ impl<'a> App<'a> {
             self.canvas.draw_line(ray_start, ray_end).unwrap();
         }
     }
-}
 
-fn wrapping_sub_float(a: f64, b: f64) -> f64 {
-    if a > b {
-        a - b
-    } else {
-        f64::MIN
+    fn cast_ray(&mut self, angle: f64, ray_id: usize) {
+        self.game.rays[ray_id] = Ray::new(angle);
+
+        let ray = &self.game.rays[ray_id];
+
+        let h = self.calculate_horizontal_intersection(ray);
+        let v = self.calculate_vertical_intersection(ray);
+
+        let ray = &mut self.game.rays[ray_id];
+
+        let horz_collision_dist = if h.found_horz_collision {
+            distance_between_points(
+                self.player.x,
+                self.player.y,
+                h.horz_x_wall_collision,
+                h.horz_y_wall_collision,
+            )
+        } else {
+            f64::MAX
+        };
+
+        let vert_collision_dist = if v.found_vert_collision {
+            distance_between_points(
+                self.player.x,
+                self.player.y,
+                v.vert_x_wall_collision,
+                v.vert_y_wall_collision,
+            )
+        } else {
+            f64::MAX
+        };
+
+        if vert_collision_dist < horz_collision_dist {
+            ray.set_distance(vert_collision_dist);
+            ray.set_x_collision(v.vert_x_wall_collision);
+            ray.set_y_collision(v.vert_y_wall_collision);
+            ray.set_content(v.vert_wall_content);
+            ray.set_is_vertical_collision(true);
+        } else {
+            ray.set_distance(horz_collision_dist);
+            ray.set_x_collision(h.horz_x_wall_collision);
+            ray.set_y_collision(h.horz_y_wall_collision);
+            ray.set_content(h.horz_wall_content);
+            ray.set_is_vertical_collision(false);
+        }
+    }
+
+    pub fn cast_rays(&mut self) {
+        for col in 0..NUM_RAYS as usize {
+            let angle = self.player.rotation_angle
+                + (col as f64 - (NUM_RAYS as f64) / 2.0).atan2(*DISTANCE_PROJ_PLANE as f64);
+            println!("RAY TO BE CAST\n ANGLE::{} COL::{}", angle, col);
+            self.cast_ray(angle, col);
+        }
     }
 }
