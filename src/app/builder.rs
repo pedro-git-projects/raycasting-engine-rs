@@ -1,5 +1,3 @@
-// use std::rc::Rc;
-//
 // use sdl2::{
 //     render::{Canvas, TextureCreator},
 //     video::WindowContext,
@@ -21,7 +19,7 @@
 //     pub video_subsystem: Option<sdl2::VideoSubsystem>,
 //     pub window: Option<sdl2::video::Window>,
 //     pub canvas: Option<sdl2::render::Canvas<sdl2::video::Window>>,
-//     texture_creator: Option<Rc<sdl2::render::TextureCreator<WindowContext>>>,
+//     texture_creator: Option<sdl2::render::TextureCreator<WindowContext>>,
 //     color_buffer: Option<ColorBuffer<'a>>,
 //     event_pump: Option<sdl2::EventPump>,
 //     game: Option<Game>,
@@ -82,7 +80,7 @@
 //             sdl_context: self.sdl_context.take().unwrap(),
 //             video_subsystem: self.video_subsystem.take().unwrap(),
 //             canvas: self.canvas.take().unwrap(),
-//             texture_creator: self.texture_creator.take().unwrap(),
+//             texture_creator: &self.texture_creator.take().unwrap(),
 //             color_buffer: self.color_buffer.take().unwrap(),
 //             event_pump: self.event_pump.take().unwrap(),
 //             game: self.game.take().unwrap(),
@@ -152,7 +150,7 @@
 //         &mut self,
 //         texture_creator: TextureCreator<WindowContext>,
 //     ) -> &mut Self {
-//         self.texture_creator = Some(Rc::new(texture_creator));
+//         self.texture_creator = Some(texture_creator);
 //         self
 //     }
 //

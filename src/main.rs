@@ -1,4 +1,4 @@
-use app::app::App;
+use crate::app::texture_owner::TextureOwner;
 
 mod app;
 mod colorbuffer;
@@ -10,13 +10,13 @@ mod window;
 extern crate sdl2;
 
 pub fn main() -> Result<(), String> {
-    // let mut app = App::new();
-    //
-    // while app.is_running {
-    //     app.process_input();
-    //     app.update();
-    //     app.render();
-    // }
-    // Ok(())
-    todo!()
+    let mut owner = TextureOwner::new()?;
+    let mut app = owner.build_app()?;
+
+    while app.is_running {
+        app.process_input();
+        app.update();
+        app.render();
+    }
+    Ok(())
 }

@@ -16,7 +16,7 @@ pub struct ColorBuffer<'a> {
 }
 
 impl<'a> ColorBuffer<'a> {
-    pub fn new(texture_creator: &'a Rc<TextureCreator<WindowContext>>) -> Result<Self, String> {
+    pub fn new(texture_creator: &'a TextureCreator<WindowContext>) -> Result<Self, String> {
         let color = vec![0; (WINDOW_WIDTH * WINDOW_HEIGHT) as usize];
 
         let texture = match texture_creator.create_texture_streaming(
@@ -35,7 +35,7 @@ impl<'a> ColorBuffer<'a> {
         })
     }
 
-    fn clear(&mut self, color: Color) {
+    pub fn clear(&mut self, color: Color) {
         for pixel in self.color.iter_mut() {
             *pixel = color.to_u32(&PixelFormatEnum::ARGB8888.try_into().unwrap());
         }
