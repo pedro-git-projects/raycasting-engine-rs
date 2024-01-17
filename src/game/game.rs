@@ -5,7 +5,7 @@ use crate::{
 
 pub struct Game {
     pub game_map: [[i32; 20]; 13],
-    rays: Vec<Ray>,
+    pub rays: Vec<Ray>,
 }
 
 impl Default for Game {
