@@ -24,12 +24,17 @@ pub struct HorizontalIntersectionResult {
 impl<'a> App<'a> {
     fn is_solid_coordinate(&self, x: f64, y: f64) -> bool {
         if x < 0.0 || x >= WINDOW_WIDTH as f64 || y < 0.0 || y >= WINDOW_HEIGHT as f64 {
-            return true;
+            return false;
         }
 
         let ind_x = (x / TILE_SIZE as f64).floor() as usize;
         let ind_y = (y / TILE_SIZE as f64).floor() as usize;
-        self.game.game_map[ind_y][ind_x] != 0
+
+        if ind_y < self.game.game_map.len() && ind_x < self.game.game_map[0].len() {
+            return self.game.game_map[ind_y][ind_x] != 0;
+        }
+
+        false
     }
 
     pub fn calculate_vertical_intersection(&self, ray: &Ray) -> VerticalIntersectionResult {
@@ -64,29 +69,33 @@ impl<'a> App<'a> {
         let mut next_vert_x_collision = x_intersection;
         let mut next_vert_y_collision = y_intersection;
 
-        while next_vert_x_collision >= 0.0
-            && next_vert_x_collision <= WINDOW_WIDTH as f64
-            && next_vert_y_collision >= 0.0
-            && next_vert_y_collision <= WINDOW_WIDTH as f64
-        {
+        let mut iteration_count = 0;
+        let max_iterations = 100;
+
+        while iteration_count < max_iterations {
             let x_to_check = if !Ray::is_facing_right(ray.angle) {
                 next_vert_x_collision - 1.0
             } else {
                 next_vert_x_collision
             };
+
             let y_to_check = next_vert_y_collision;
 
-            if self.is_solid_coordinate(x_to_check, y_to_check) {
+            let clamped_x = x_to_check.clamp(0.0, (WINDOW_WIDTH - 1) as f64);
+            let clamped_y = y_to_check.clamp(0.0, (WINDOW_HEIGHT - 1) as f64);
+
+            if self.is_solid_coordinate(clamped_x, clamped_y) {
                 result.vert_x_wall_collision = next_vert_x_collision;
                 result.vert_y_wall_collision = next_vert_y_collision;
                 result.vert_wall_content = self.game.game_map
-                    [(y_to_check / TILE_SIZE as f64).floor() as usize]
-                    [(x_to_check / TILE_SIZE as f64).floor() as usize];
+                    [(clamped_y / TILE_SIZE as f64).floor() as usize]
+                    [(clamped_x / TILE_SIZE as f64).floor() as usize];
                 result.found_vert_collision = true;
                 break;
             } else {
                 next_vert_x_collision += x_step;
                 next_vert_y_collision += y_step;
+                iteration_count += 1;
             }
         }
 
@@ -121,7 +130,6 @@ impl<'a> App<'a> {
             } else {
                 1.0
             };
-        println!("xstep {}", x_step);
 
         let mut next_horz_x_collision = x_intersection;
         let mut next_horz_y_collision = y_intersection;

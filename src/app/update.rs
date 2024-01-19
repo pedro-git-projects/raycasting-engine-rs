@@ -14,6 +14,6 @@ impl<'a> App<'a> {
         unsafe { self.timekeeper.set_ticks(sdl2::sys::SDL_GetTicks64()) }
         self.player
             .move_player(self.timekeeper.delta_time(), &self.game);
-        //self.cast_rays();
+        self.cast_rays();
     }
 }
