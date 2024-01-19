@@ -8,14 +8,14 @@ use sdl2::{
 use crate::window::window::{WINDOW_HEIGHT, WINDOW_WIDTH};
 
 pub struct ColorBuffer<'a> {
-    pub color: Vec<u32>,
+    pub buffer: Vec<u32>,
     pub texture_creator: &'a TextureCreator<WindowContext>,
     pub texture: Texture<'a>,
 }
 
 impl<'a> ColorBuffer<'a> {
     pub fn new(texture_creator: &'a TextureCreator<WindowContext>) -> Result<Self, String> {
-        let color = vec![0; (WINDOW_WIDTH * WINDOW_HEIGHT) as usize];
+        let buffer = vec![0; (WINDOW_WIDTH * WINDOW_HEIGHT) as usize];
 
         let texture = match texture_creator.create_texture_streaming(
             PixelFormatEnum::ARGB8888,
@@ -27,7 +27,7 @@ impl<'a> ColorBuffer<'a> {
         };
 
         Ok(Self {
-            color,
+            buffer,
             texture_creator,
             texture,
         })
@@ -38,12 +38,12 @@ impl<'a> ColorBuffer<'a> {
             .try_into()
             .map_err(|e| format!("Error converting to PixelFormatEnum: {}", e))?;
 
-        for pixel in self.color.iter_mut() {
+        for pixel in self.buffer.iter_mut() {
             *pixel = color.to_u32(&pixel_format);
         }
 
         let color_bytes: &[u8] = unsafe {
-            std::slice::from_raw_parts(self.color.as_ptr() as *const u8, self.color.len() * 4)
+            std::slice::from_raw_parts(self.buffer.as_ptr() as *const u8, self.buffer.len() * 4)
         };
 
         self.texture

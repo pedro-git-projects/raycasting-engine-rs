@@ -74,8 +74,8 @@ impl<'a> App<'a> {
     pub fn render_color_buffer(&mut self) -> Result<(), String> {
         let color_bytes: &[u8] = unsafe {
             std::slice::from_raw_parts(
-                self.color_buffer.color.as_ptr() as *const u8,
-                self.color_buffer.color.len() * 4,
+                self.color_buffer.buffer.as_ptr() as *const u8,
+                self.color_buffer.buffer.len() * 4,
             )
         };
 
@@ -255,7 +255,7 @@ impl<'a> App<'a> {
 
     fn render_ceiling(&mut self, x: u32, top_wall_pixel: u32) {
         for y in 0..top_wall_pixel {
-            self.color_buffer.color[((WINDOW_WIDTH * y) + x) as usize] = 0xFF444444;
+            self.color_buffer.buffer[((WINDOW_WIDTH * y) + x) as usize] = 0xFF444444;
         }
     }
 
@@ -266,7 +266,7 @@ impl<'a> App<'a> {
                 .and_then(|mul_result| mul_result.checked_add(x as usize));
 
             if let Some(index) = index {
-                let index_clamped = index.min(self.color_buffer.color.len() - 1);
+                let index_clamped = index.min(self.color_buffer.buffer.len() - 1);
 
                 let color = if self.game.rays[x as usize].is_vertical_collision {
                     0xFFFFFFFF
@@ -274,35 +274,24 @@ impl<'a> App<'a> {
                     0xFFCCCCCC
                 };
 
-                self.color_buffer.color[index_clamped] = color;
+                self.color_buffer.buffer[index_clamped] = color;
             } else {
                 println!("Overflow in index calculation: x={}, y={}", x, y);
             }
         }
     }
 
-    // fn render_wall(&mut self, x: u32, top_wall_pixel: u32, bottom_wall_pixel: u32) {
-    //     for y in top_wall_pixel..bottom_wall_pixel {
-    //         let color = if self.game.rays[x as usize].is_vertical_collision {
-    //             0xFFFFFFFF
-    //         } else {
-    //             0xFFCCCCCC
-    //         };
-    //         self.color_buffer.color[((WINDOW_WIDTH * y) + x) as usize] = color;
-    //     }
-    // }
-
     fn render_floor(&mut self, x: u32, bottom_wall_pixel: u32) {
         for y in bottom_wall_pixel..WINDOW_HEIGHT {
-            self.color_buffer.color[((WINDOW_WIDTH * y) + x) as usize] = 0xFF777777;
+            self.color_buffer.buffer[((WINDOW_WIDTH * y) + x) as usize] = 0xFF777777;
         }
     }
 
     fn update_texture(&mut self) -> Result<(), String> {
         let color_bytes: &[u8] = unsafe {
             std::slice::from_raw_parts(
-                self.color_buffer.color.as_ptr() as *const u8,
-                self.color_buffer.color.len() * 4,
+                self.color_buffer.buffer.as_ptr() as *const u8,
+                self.color_buffer.buffer.len() * 4,
             )
         };
 
