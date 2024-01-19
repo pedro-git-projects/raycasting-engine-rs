@@ -175,10 +175,10 @@ impl<'a> App<'a> {
     fn cast_ray(&mut self, angle: f64, ray_id: usize) {
         self.game.rays[ray_id] = Ray::new(angle);
 
-        let ray = &self.game.rays[ray_id];
+        let mut ray = self.game.rays[ray_id];
 
-        let h = self.calculate_horizontal_intersection(ray);
-        let v = self.calculate_vertical_intersection(ray);
+        let h = self.calculate_horizontal_intersection(&mut ray);
+        let v = self.calculate_vertical_intersection(&mut ray);
 
         let ray = &mut self.game.rays[ray_id];
 

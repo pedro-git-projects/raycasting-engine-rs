@@ -23,113 +23,93 @@ pub struct HorizontalIntersectionResult {
 
 impl<'a> App<'a> {
     fn is_solid_coordinate(&self, x: f64, y: f64) -> bool {
-        if x < 0.0 || x >= WINDOW_WIDTH as f64 || y < 0.0 || y >= WINDOW_HEIGHT as f64 {
-            return false;
+        if x < 0.0 || x >= WINDOW_WIDTH as f64 || y < 0.0 || y > WINDOW_HEIGHT as f64 {
+            return true;
         }
 
-        let ind_x = (x / TILE_SIZE as f64).floor() as usize;
-        let ind_y = (y / TILE_SIZE as f64).floor() as usize;
+        let idx_x = ((x / TILE_SIZE as f64).floor()) as usize;
+        let idx_y = ((y / TILE_SIZE as f64).floor()) as usize;
 
-        if ind_y < self.game.game_map.len() && ind_x < self.game.game_map[0].len() {
-            return self.game.game_map[ind_y][ind_x] != 0;
-        }
-
-        false
+        self.game.game_map[idx_y][idx_x] != 0
     }
 
-    pub fn calculate_vertical_intersection(&self, ray: &Ray) -> VerticalIntersectionResult {
+    pub fn calculate_vertical_intersection(&self, ray: &mut Ray) -> VerticalIntersectionResult {
         let mut result = VerticalIntersectionResult {
             ..Default::default()
         };
 
-        let x_intersection = (self.player.x / TILE_SIZE as f64).floor() * TILE_SIZE as f64;
-        let x_intersection = if Ray::is_facing_right(ray.angle) {
-            x_intersection + TILE_SIZE as f64
-        } else {
-            x_intersection
-        };
+        let mut x_intersection = ((self.player.x / TILE_SIZE as f64).floor()) * TILE_SIZE as f64;
+        if ray.is_facing_right {
+            x_intersection += TILE_SIZE as f64;
+        }
 
         let y_intersection = self.player.y + (x_intersection - self.player.x) * ray.angle.tan();
 
-        let x_step = TILE_SIZE as f64
-            * if !Ray::is_facing_right(ray.angle) {
-                -1.0
-            } else {
-                1.0
-            };
+        let x_step = TILE_SIZE as f64 * if ray.is_facing_right { -1.0 } else { 1.0 };
 
-        let y_step = TILE_SIZE as f64
-            * ray.angle.tan()
-            * if !Ray::is_facing_down(ray.angle) || Ray::is_facing_down(ray.angle) {
-                -1.0
-            } else {
-                1.0
-            };
+        let mut y_step = TILE_SIZE as f64 * ray.angle.tan();
+        if ray.is_facing_up && y_step > 0.0 {
+            y_step *= -1.0;
+        }
+        if ray.is_facing_down && y_step < 0.0 {
+            y_step *= -1.0;
+        }
 
         let mut next_vert_x_collision = x_intersection;
         let mut next_vert_y_collision = y_intersection;
 
-        let mut iteration_count = 0;
-        let max_iterations = 100;
-
-        while iteration_count < max_iterations {
-            let x_to_check = if !Ray::is_facing_right(ray.angle) {
-                next_vert_x_collision - 1.0
-            } else {
-                next_vert_x_collision
-            };
+        while next_vert_x_collision >= 0.0
+            && next_vert_x_collision <= WINDOW_WIDTH as f64
+            && next_vert_y_collision >= 0.0
+            && next_vert_y_collision <= WINDOW_HEIGHT as f64
+        {
+            let mut x_to_check = next_vert_x_collision;
+            if ray.is_facing_left {
+                x_to_check -= 1.0;
+            }
 
             let y_to_check = next_vert_y_collision;
-
-            let clamped_x = x_to_check.clamp(0.0, (WINDOW_WIDTH - 1) as f64);
-            let clamped_y = y_to_check.clamp(0.0, (WINDOW_HEIGHT - 1) as f64);
-
-            if self.is_solid_coordinate(clamped_x, clamped_y) {
+            if self.is_solid_coordinate(x_to_check, y_to_check) {
                 result.vert_x_wall_collision = next_vert_x_collision;
                 result.vert_y_wall_collision = next_vert_y_collision;
                 result.vert_wall_content = self.game.game_map
-                    [(clamped_y / TILE_SIZE as f64).floor() as usize]
-                    [(clamped_x / TILE_SIZE as f64).floor() as usize];
+                    [(y_to_check / TILE_SIZE as f64) as usize]
+                    [(x_to_check / TILE_SIZE as f64) as usize];
                 result.found_vert_collision = true;
                 break;
             } else {
-                next_vert_x_collision += x_step;
-                next_vert_y_collision += y_step;
-                iteration_count += 1;
+                next_vert_x_collision = x_step;
+                next_vert_y_collision = y_step;
             }
         }
-
         result
     }
 
-    // if problemas arise check the !Ray::is_facing_x
-    pub fn calculate_horizontal_intersection(&self, ray: &Ray) -> HorizontalIntersectionResult {
+    pub fn calculate_horizontal_intersection(&self, ray: &mut Ray) -> HorizontalIntersectionResult {
         let mut result = HorizontalIntersectionResult {
             ..Default::default()
         };
 
-        let y_intersection = (self.player.y / TILE_SIZE as f64).floor() * TILE_SIZE as f64;
-        let y_intersection = if Ray::is_facing_down(ray.angle) {
-            y_intersection + TILE_SIZE as f64
-        } else {
-            y_intersection
-        };
+        let mut y_intersection = (self.player.y / TILE_SIZE as f64).floor() * TILE_SIZE as f64;
+        if ray.is_facing_down {
+            y_intersection += TILE_SIZE as f64;
+        }
 
-        let x_intersection = self.player.x + (y_intersection - self.player.y) / ray.angle.tan();
+        let x_intersection = self.player.x + ((y_intersection - self.player.y) / (ray.angle.tan()));
 
-        let y_step = TILE_SIZE as f64
-            * if !Ray::is_facing_down(ray.angle) {
-                -1.0
-            } else {
-                1.0
-            };
+        let mut y_step = TILE_SIZE as f64;
+        if ray.is_facing_up {
+            y_step *= -1.0;
+        }
 
-        let x_step = TILE_SIZE as f64 / ray.angle.tan()
-            * if !Ray::is_facing_right(ray.angle) || Ray::is_facing_right(ray.angle) {
-                -1.0
-            } else {
-                1.0
-            };
+        let mut x_step = TILE_SIZE as f64 / ray.angle.tan();
+        if ray.is_facing_left && x_step > 0.0 {
+            x_step *= -1.0;
+        }
+
+        if ray.is_facing_right && x_step < 0.0 {
+            x_step *= -1.0;
+        }
 
         let mut next_horz_x_collision = x_intersection;
         let mut next_horz_y_collision = y_intersection;
@@ -140,18 +120,16 @@ impl<'a> App<'a> {
             && next_horz_y_collision <= WINDOW_HEIGHT as f64
         {
             let x_to_check = next_horz_x_collision;
-            let y_to_check = if !Ray::is_facing_down(ray.angle) {
-                next_horz_y_collision - 1.0
-            } else {
-                next_horz_y_collision
-            };
-
+            let mut y_to_check = next_horz_y_collision;
+            if ray.is_facing_up {
+                y_to_check -= 1.0;
+            }
             if self.is_solid_coordinate(x_to_check, y_to_check) {
                 result.horz_x_wall_collision = next_horz_x_collision;
                 result.horz_y_wall_collision = next_horz_y_collision;
                 result.horz_wall_content = self.game.game_map
-                    [(y_to_check / TILE_SIZE as f64).floor() as usize]
-                    [(x_to_check / TILE_SIZE as f64).floor() as usize];
+                    [((y_to_check / TILE_SIZE as f64).floor()) as usize]
+                    [((x_to_check / TILE_SIZE as f64).floor()) as usize];
                 result.found_horz_collision = true;
                 break;
             } else {

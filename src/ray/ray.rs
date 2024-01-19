@@ -1,4 +1,4 @@
-use std::f64::consts::PI;
+use crate::utils::points::{is_angle_facing_down, is_angle_facing_right, normalize_angle};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Ray {
@@ -15,27 +15,11 @@ pub struct Ray {
 }
 
 impl Ray {
-    pub fn is_facing_down(angle: f64) -> bool {
-        angle > 0.0 && angle < PI
-    }
-
-    pub fn is_facing_right(angle: f64) -> bool {
-        angle < 0.5 * PI || angle > 1.5 * PI
-    }
-
-    pub fn normalize_angle(angle: f64) -> f64 {
-        let mut angle = angle.rem_euclid(2.0 * PI);
-        if angle < 0.0 {
-            angle += 2.0 * PI
-        }
-        angle
-    }
-
-    pub fn new(angle: f64) -> Ray {
-        let angle = Self::normalize_angle(angle);
-        let is_facing_down = Self::is_facing_down(angle);
+    pub fn new(mut angle: f64) -> Ray {
+        normalize_angle(&mut angle);
+        let is_facing_down = is_angle_facing_down(&mut angle);
         let is_facing_up = !is_facing_down;
-        let is_facing_right = Self::is_facing_right(angle);
+        let is_facing_right = is_angle_facing_right(&mut angle);
         let is_facing_left = !is_facing_right;
 
         Ray {
@@ -51,14 +35,4 @@ impl Ray {
             content: i32::default(),
         }
     }
-}
-
-#[test]
-fn test_normalize_angle_positive() {
-    assert_eq!(Ray::normalize_angle(1.5 * PI), 1.5 * PI);
-}
-
-#[test]
-fn test_normalize_angle_negative() {
-    assert_eq!(Ray::normalize_angle(-0.5 * PI), 1.5 * PI);
 }

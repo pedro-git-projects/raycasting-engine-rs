@@ -10,3 +10,11 @@ pub fn normalize_angle(angle: &mut f64) {
         *angle += 2.0 * PI;
     }
 }
+
+pub fn is_angle_facing_down(angle: &mut f64) -> bool {
+    *angle > 0.0 && *angle < PI
+}
+
+pub fn is_angle_facing_right(angle: &mut f64) -> bool {
+    *angle < 0.5 * PI || *angle > 1.5 * PI
+}

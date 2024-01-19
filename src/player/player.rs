@@ -58,22 +58,6 @@ impl Player {
         self.y = y;
     }
 
-    fn inc_x(&mut self, x: f64) {
-        self.x += x;
-    }
-
-    fn inc_y(&mut self, y: f64) {
-        self.y += y;
-    }
-
-    fn dec_x(&mut self, x: f64) {
-        self.x -= x;
-    }
-
-    fn dec_y(&mut self, y: f64) {
-        self.y -= y;
-    }
-
     pub fn set_walk_direction(&mut self, direction: &str) -> Result<(), String> {
         match direction.to_lowercase().as_str() {
             "neutral" => self.walk_direction = WalkDirection::Neutral,
