@@ -17,7 +17,7 @@ pub fn main() -> Result<(), String> {
     while app.is_running {
         app.process_input();
         app.update();
-        app.render();
+        app.render()?;
     }
     Ok(())
 }

@@ -33,9 +33,13 @@ impl<'a> ColorBuffer<'a> {
         })
     }
 
-    pub fn clear(&mut self, color: Color) {
+    pub fn clear(&mut self, color: Color) -> Result<(), String> {
+        let pixel_format = PixelFormatEnum::ARGB8888
+            .try_into()
+            .map_err(|e| format!("Error converting to PixelFormatEnum: {}", e))?;
+
         for pixel in self.color.iter_mut() {
-            *pixel = color.to_u32(&PixelFormatEnum::ARGB8888.try_into().unwrap());
+            *pixel = color.to_u32(&pixel_format);
         }
 
         let color_bytes: &[u8] = unsafe {
@@ -44,6 +48,8 @@ impl<'a> ColorBuffer<'a> {
 
         self.texture
             .update(None, color_bytes, WINDOW_WIDTH as usize * 4)
-            .unwrap();
+            .map_err(|e| format!("Error updating texture: {}", e))?;
+
+        Ok(())
     }
 }

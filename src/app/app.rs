@@ -55,9 +55,8 @@ impl<'a> App<'a> {
         })
     }
 
-    pub fn generate3d_projection(&mut self) {
+    pub fn generate3d_projection(&mut self) -> Result<(), String> {
         for x in 0..NUM_RAYS {
-
             let perp_dist_wrapped = wrapping_sub_float(
                 self.game.rays[x as usize].distance * self.game.rays[x as usize].angle.cos(),
                 self.player.rotation_angle,
@@ -100,13 +99,17 @@ impl<'a> App<'a> {
             )
         };
 
-        self.color_buffer
+        match self
+            .color_buffer
             .texture
             .update(None, color_bytes, WINDOW_WIDTH as usize * 4)
-            .unwrap();
+        {
+            Ok(()) => Ok(()),
+            Err(err) => Err(format!("Error updating textures: {:?}", err)),
+        }
     }
 
-    pub fn render_color_buffer(&mut self) {
+    pub fn render_color_buffer(&mut self) -> Result<(), String> {
         let color_bytes: &[u8] = unsafe {
             std::slice::from_raw_parts(
                 self.color_buffer.color.as_ptr() as *const u8,
@@ -117,14 +120,16 @@ impl<'a> App<'a> {
         self.color_buffer
             .texture
             .update(None, color_bytes, WINDOW_WIDTH as usize * 4)
-            .unwrap();
+            .map_err(|err| format!("Error updating texture: {:?}", err))?;
 
         self.canvas
             .copy(&self.color_buffer.texture, None, None)
-            .unwrap();
+            .map_err(|err| format!("Error copying texture to canvas: {:?}", err))?;
+
+        Ok(())
     }
 
-    pub fn render_player(&mut self) {
+    pub fn render_player(&mut self) -> Result<(), String> {
         self.canvas.set_draw_color(Color::RGBA(255, 255, 255, 255));
 
         let player_rect = Rect::new(
@@ -133,7 +138,7 @@ impl<'a> App<'a> {
             (self.player.width * MINIMAP_SCALING) as u32,
             (self.player.height * MINIMAP_SCALING) as u32,
         );
-        self.canvas.fill_rect(player_rect).unwrap();
+        self.canvas.fill_rect(player_rect)?;
 
         let length = 30.0;
         let line_end_x = (MINIMAP_SCALING * self.player.x) as i32
@@ -146,19 +151,19 @@ impl<'a> App<'a> {
             (MINIMAP_SCALING * self.player.y) as i32,
         );
         let end_point = Point::new(line_end_x, line_end_y);
-        self.canvas.draw_line(start_point, end_point).unwrap();
+        self.canvas.draw_line(start_point, end_point)?;
+
+        Ok(())
     }
 
-    pub fn render_map(&mut self) {
+    pub fn render_map(&mut self) -> Result<(), String> {
         self.canvas.set_draw_color(Color::RGBA(0, 0, 0, 255));
-        self.canvas
-            .fill_rect(Rect::new(
-                0,
-                0,
-                (MINIMAP_SCALING * NUM_COLS as f64 * TILE_SIZE as f64) as u32,
-                (MINIMAP_SCALING * NUM_ROWS as f64 * TILE_SIZE as f64) as u32,
-            ))
-            .unwrap();
+        self.canvas.fill_rect(Rect::new(
+            0,
+            0,
+            (MINIMAP_SCALING * NUM_COLS as f64 * TILE_SIZE as f64) as u32,
+            (MINIMAP_SCALING * NUM_ROWS as f64 * TILE_SIZE as f64) as u32,
+        ))?;
 
         for i in 0..NUM_ROWS {
             for j in 0..NUM_COLS {
@@ -179,12 +184,15 @@ impl<'a> App<'a> {
                     (TILE_SIZE as f64 * MINIMAP_SCALING) as u32,
                     (TILE_SIZE as f64 * MINIMAP_SCALING) as u32,
                 );
-                self.canvas.fill_rect(map_tile).unwrap();
+                self.canvas
+                    .fill_rect(map_tile)
+                    .map_err(|err| format!("Error filling rect {:?}", err))?;
             }
         }
+        Ok(())
     }
 
-    pub fn render_rays(&mut self) {
+    pub fn render_rays(&mut self) -> Result<(), String> {
         self.canvas.set_draw_color(Color::RGBA(255, 0, 0, 255));
 
         for i in 0..NUM_RAYS {
@@ -196,8 +204,10 @@ impl<'a> App<'a> {
                 (MINIMAP_SCALING * self.game.rays[i as usize].x_collision) as i32,
                 (MINIMAP_SCALING * self.game.rays[i as usize].y_collision) as i32,
             );
-            self.canvas.draw_line(ray_start, ray_end).unwrap();
+            self.canvas.draw_line(ray_start, ray_end)?;
         }
+
+        Ok(())
     }
 
     fn cast_ray(&mut self, angle: f64, ray_id: usize) {
@@ -233,17 +243,17 @@ impl<'a> App<'a> {
         };
 
         if vert_collision_dist < horz_collision_dist {
-            ray.set_distance(vert_collision_dist);
-            ray.set_x_collision(v.vert_x_wall_collision);
-            ray.set_y_collision(v.vert_y_wall_collision);
-            ray.set_content(v.vert_wall_content);
-            ray.set_is_vertical_collision(true);
+            ray.distance = vert_collision_dist;
+            ray.x_collision = v.vert_x_wall_collision;
+            ray.y_collision = v.vert_y_wall_collision;
+            ray.content = v.vert_wall_content;
+            ray.is_vertical_collision = true;
         } else {
-            ray.set_distance(horz_collision_dist);
-            ray.set_x_collision(h.horz_x_wall_collision);
-            ray.set_y_collision(h.horz_y_wall_collision);
-            ray.set_content(h.horz_wall_content);
-            ray.set_is_vertical_collision(false);
+            ray.distance = horz_collision_dist;
+            ray.x_collision = h.horz_x_wall_collision;
+            ray.y_collision = h.horz_y_wall_collision;
+            ray.content = h.horz_wall_content;
+            ray.is_vertical_collision = false;
         }
     }
 
