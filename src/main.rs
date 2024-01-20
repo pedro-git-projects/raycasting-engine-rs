@@ -6,6 +6,7 @@ mod game;
 mod player;
 mod ray;
 mod timekeeper;
+mod utils;
 mod window;
 extern crate sdl2;
 
@@ -16,7 +17,7 @@ pub fn main() -> Result<(), String> {
     while app.is_running {
         app.process_input();
         app.update();
-        app.render();
+        app.render()?;
     }
     Ok(())
 }

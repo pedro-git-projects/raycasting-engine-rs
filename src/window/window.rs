@@ -4,8 +4,8 @@ use lazy_static::lazy_static;
 
 pub const MINIMAP_SCALING: f64 = 0.2;
 pub const TILE_SIZE: u32 = 64;
-pub const NUM_ROWS: u32 = 600 / TILE_SIZE;
-pub const NUM_COLS: u32 = 800 / TILE_SIZE;
+pub const NUM_ROWS: u32 = 13;
+pub const NUM_COLS: u32 = 20;
 pub const FOV: f64 = 60.0 * (PI / 180.0);
 pub const WINDOW_WIDTH: u32 = NUM_COLS * TILE_SIZE;
 pub const WINDOW_HEIGHT: u32 = NUM_ROWS * TILE_SIZE;

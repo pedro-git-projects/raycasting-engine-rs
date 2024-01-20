@@ -8,14 +8,14 @@ use sdl2::{
 use crate::window::window::{WINDOW_HEIGHT, WINDOW_WIDTH};
 
 pub struct ColorBuffer<'a> {
-    pub color: Vec<u32>,
+    pub buffer: Vec<u32>,
     pub texture_creator: &'a TextureCreator<WindowContext>,
     pub texture: Texture<'a>,
 }
 
 impl<'a> ColorBuffer<'a> {
     pub fn new(texture_creator: &'a TextureCreator<WindowContext>) -> Result<Self, String> {
-        let color = vec![0; (WINDOW_WIDTH * WINDOW_HEIGHT) as usize];
+        let buffer = vec![0; (WINDOW_WIDTH * WINDOW_HEIGHT) as usize];
 
         let texture = match texture_creator.create_texture_streaming(
             PixelFormatEnum::ARGB8888,
@@ -27,23 +27,29 @@ impl<'a> ColorBuffer<'a> {
         };
 
         Ok(Self {
-            color,
+            buffer,
             texture_creator,
             texture,
         })
     }
 
-    pub fn clear(&mut self, color: Color) {
-        for pixel in self.color.iter_mut() {
-            *pixel = color.to_u32(&PixelFormatEnum::ARGB8888.try_into().unwrap());
+    pub fn clear(&mut self, color: Color) -> Result<(), String> {
+        let pixel_format = PixelFormatEnum::ARGB8888
+            .try_into()
+            .map_err(|e| format!("Error converting to PixelFormatEnum: {}", e))?;
+
+        for pixel in self.buffer.iter_mut() {
+            *pixel = color.to_u32(&pixel_format);
         }
 
         let color_bytes: &[u8] = unsafe {
-            std::slice::from_raw_parts(self.color.as_ptr() as *const u8, self.color.len() * 4)
+            std::slice::from_raw_parts(self.buffer.as_ptr() as *const u8, self.buffer.len() * 4)
         };
 
         self.texture
             .update(None, color_bytes, WINDOW_WIDTH as usize * 4)
-            .unwrap();
+            .map_err(|e| format!("Error updating texture: {}", e))?;
+
+        Ok(())
     }
 }
