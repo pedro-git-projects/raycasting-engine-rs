@@ -7,7 +7,6 @@ use sdl2::{
 
 use crate::window::window::{WINDOW_HEIGHT, WINDOW_WIDTH};
 
-// Ok
 pub struct ColorBuffer<'a> {
     pub buffer: Vec<u32>,
     pub texture_creator: &'a TextureCreator<WindowContext>,

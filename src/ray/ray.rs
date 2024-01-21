@@ -1,6 +1,5 @@
 use crate::utils::geometry::{is_angle_facing_down, is_angle_facing_right, normalize_angle};
 
-// Ok
 #[derive(Debug, Clone, Copy)]
 pub struct Ray {
     pub angle: f64,
