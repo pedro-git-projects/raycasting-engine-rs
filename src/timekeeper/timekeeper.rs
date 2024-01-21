@@ -6,7 +6,6 @@ const FRAME_TIME_TARGET: u64 = 1000 / FPS;
 pub struct TimeKeeper {
     ticks_last_frame: u64,
     delta_time: f64,
-    fps: u64,
     frame_time_target: u64,
     wait_time: u64,
 }
@@ -15,22 +14,13 @@ impl TimeKeeper {
     pub fn default() -> Self {
         Self {
             ticks_last_frame: 0,
-            fps: FPS,
             frame_time_target: FRAME_TIME_TARGET,
             ..Default::default()
         }
     }
 
-    pub fn ticks_last_frame(&self) -> u64 {
-        self.ticks_last_frame
-    }
-
     pub fn set_ticks(&mut self, ticks: u64) {
         self.ticks_last_frame = ticks;
-    }
-
-    pub fn set_delta(&mut self, new_delta: f64) {
-        self.delta_time = new_delta;
     }
 
     pub fn delta_time(&self) -> f64 {
@@ -53,10 +43,6 @@ impl TimeKeeper {
                 self.wait_time = u64::MAX;
             }
         }
-    }
-
-    pub fn fps(&self) -> u64 {
-        self.fps
     }
 
     pub fn frame_time(&self) -> u64 {
