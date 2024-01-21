@@ -1,4 +1,4 @@
-use crate::utils::points::{is_angle_facing_down, is_angle_facing_right, normalize_angle};
+use crate::utils::geometry::{is_angle_facing_down, is_angle_facing_right, normalize_angle};
 
 // Ok
 #[derive(Debug, Clone, Copy)]

@@ -1,6 +1,6 @@
 use crate::{
     ray::ray::Ray,
-    utils::points::distance_between_points,
+    utils::geometry::distance_between_points,
     window::window::{DISTANCE_PROJ_PLANE, NUM_RAYS, TILE_SIZE, WINDOW_HEIGHT, WINDOW_WIDTH},
 };
 
