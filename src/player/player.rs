@@ -32,6 +32,12 @@ pub struct Player {
     pub minimap_scale: f64,
 }
 
+// Default returns an owned player
+// in the x and y postion
+// with 1 pixel witdh and height
+// with neutral turn and walk diretion
+// 100 pixel walkspeed and 45 radians turning
+// the default minimapScaling is 0.3
 impl Default for Player {
     fn default() -> Self {
         Player {
@@ -78,6 +84,10 @@ impl Player {
         Ok(())
     }
 
+    // Move changes the value of the x and y fiels of a player object
+    // to new values considering the turn and walk speeds
+    // accounting fot the delta time
+    // and checking for collision into the new position
     pub fn move_player(&mut self, delta: f64, game: &Game) {
         self.rotation_angle += match self.turn_direction {
             TurnDirection::Neutral => 0.0,

@@ -3,6 +3,7 @@ use crate::{
     window::window::{NUM_RAYS, TILE_SIZE, WINDOW_HEIGHT, WINDOW_WIDTH},
 };
 
+// Ok
 pub struct Game {
     pub game_map: [[i32; 20]; 13],
     pub rays: Vec<Ray>,
@@ -10,7 +11,7 @@ pub struct Game {
 
 impl Default for Game {
     fn default() -> Self {
-        let rays: Vec<Ray> = vec![Ray::new(0.0); NUM_RAYS as usize];
+        let rays: Vec<Ray> = vec![Ray::new(&mut 0.0); NUM_RAYS as usize];
 
         Game {
             game_map: Self::initialize_game_map(),

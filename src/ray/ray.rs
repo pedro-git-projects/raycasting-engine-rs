@@ -1,5 +1,6 @@
 use crate::utils::points::{is_angle_facing_down, is_angle_facing_right, normalize_angle};
 
+// Ok
 #[derive(Debug, Clone, Copy)]
 pub struct Ray {
     pub angle: f64,
@@ -15,7 +16,7 @@ pub struct Ray {
 }
 
 impl Ray {
-    pub fn new(mut angle: f64) -> Ray {
+    pub fn new(mut angle: &mut f64) -> Ray {
         normalize_angle(&mut angle);
         let is_facing_down = is_angle_facing_down(&mut angle);
         let is_facing_up = !is_facing_down;
@@ -23,7 +24,7 @@ impl Ray {
         let is_facing_left = !is_facing_right;
 
         Ray {
-            angle,
+            angle: *angle,
             x_collision: f64::default(),
             y_collision: f64::default(),
             distance: f64::default(),
